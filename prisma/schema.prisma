@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Base scenario definitions - pre-defined tumor scenarios
+model Scenario {
+  id          String   @id @default(cuid())
+  name        String   @unique // e.g., "tanpa_tumor", "dengan_tumor", "kuadran_I", etc.
+  displayName String   // e.g., "Tanpa Tumor", "Kuadran I"
+  description String?
+  offsetX     Float    @default(0) // Tumor position offset X
+  offsetY     Float    @default(0) // Tumor position offset Y
+  offsetZ     Float    @default(0) // Tumor position offset Z
+  hasTumor    Boolean  @default(false)
+  dataHash    String   @unique // Hash of the CSV data for matching
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  csvData     CsvData[]
+}
+
+// CSV data storage - stores parsed CSV data
+model CsvData {
+  id         String   @id @default(cuid())
+  scenarioId String?
+  scenario   Scenario? @relation(fields: [scenarioId], references: [id])
+  fileName   String
+  fileSize   Int
+  rowCount   Int
+  dataHash   String   // Hash for comparison
+  rawData    String   // Original CSV content
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// User uploaded CSV files for comparison
+model UploadedCsv {
+  id           String   @id @default(cuid())
+  fileName     String
+  fileSize     Int
+  rowCount     Int
+  dataHash     String
+  matched      Boolean  @default(false)
+  matchedScenario String? // Name of matched scenario if found
+  createdAt    DateTime @default(now())
+}
