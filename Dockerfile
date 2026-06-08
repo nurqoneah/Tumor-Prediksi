@@ -41,10 +41,18 @@ RUN bun run build
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 ENV NODE_ENV=production
+ENV DATABASE_URL="file:/app/db/custom.db"
 
 # Create database directories and ensure they are writable
 RUN mkdir -p /db && chmod 777 /db
 RUN mkdir -p /app/db && chmod 777 /app/db
+
+# Copy Python scripts, model, and dataset / upload scenarios to the standalone server directory
+# Next.js compiler does not trace non-JS assets dynamically executed via CLI (python predict.py)
+RUN mkdir -p .next/standalone/src/lib/
+RUN cp src/lib/predict.py .next/standalone/src/lib/
+RUN cp src/lib/tumor_model.joblib .next/standalone/src/lib/
+RUN cp -r upload .next/standalone/upload
 
 # Expose port (Railway overrides this dynamically with PORT env)
 EXPOSE 3000
