@@ -37,8 +37,13 @@ RUN bun run db:generate
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN bun run build
 
-# Expose port (Next.js server default / Railway overrides it)
+# Next.js standalone server configuration
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+ENV NODE_ENV=production
+
+# Expose port (Railway overrides this dynamically with PORT env)
 EXPOSE 3000
 
-# Start server
-CMD ["bun", "run", "start"]
+# Start server directly using node to bind properly and forward signals
+CMD ["node", ".next/standalone/server.js"]
