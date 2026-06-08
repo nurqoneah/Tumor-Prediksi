@@ -42,8 +42,12 @@ ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 ENV NODE_ENV=production
 
+# Create database directories and ensure they are writable
+RUN mkdir -p /db && chmod 777 /db
+RUN mkdir -p /app/db && chmod 777 /app/db
+
 # Expose port (Railway overrides this dynamically with PORT env)
 EXPOSE 3000
 
-# Start server directly using node to bind properly and forward signals
-CMD ["node", ".next/standalone/server.js"]
+# Start server: run Prisma db push on startup to initialize database tables, then start the server
+CMD ["sh", "-c", "npx prisma db push && node .next/standalone/server.js"]
