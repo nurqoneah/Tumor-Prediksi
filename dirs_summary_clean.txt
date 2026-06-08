@@ -1,0 +1,30 @@
+Hasil Simulasi\Kuadran I, Tumor di Kuadran I: 9 files
+Hasil Simulasi\Kuadran I, Tumor di tengah: 9 files
+Hasil Simulasi\Kuadran II, Tumor di Kuadran II: 9 files
+Hasil Simulasi\Kuadran II, Tumor di tengah: 9 files
+Hasil Simulasi\Kuadran III, Tumor di Kuadran III: 9 files
+Hasil Simulasi\Kuadran III, Tumor di Tengah: 9 files
+Hasil Simulasi\Kuadran IV, Tumor di Kuadran IV: 9 files
+Hasil Simulasi\Kuadran IV,Tumor di tengah: 9 files
+Hasil Simulasi\Simulasi 9 antena, Tumor di tengah: 17 files
+Hasil Simulasi\Simulasi Kuadran I dan II, 2 Tumor: 9 files
+Hasil Simulasi\Simulasi Kuadran I dan III, 2 Tumor: 9 files
+Hasil Simulasi\Simulasi Kuadran I dan IV, 2 Tumor: 9 files
+Hasil Simulasi\Simulasi Kuadran II dan III, 2 tumor: 9 files
+Hasil Simulasi\Simulasi Kuadran II dan IV, 2 tumor: 9 files
+Hasil Simulasi\Simulasi Kuadran III dan IV, 2 Tumor: 9 files
+Simulasi Tanpa Tumor\Kuadaran II dan IV: 9 files
+Simulasi Tanpa Tumor\Kuadaran IV: 9 files
+Simulasi Tanpa Tumor\Kuadran I: 9 files
+Simulasi Tanpa Tumor\Kuadran I dan II: 9 files
+Simulasi Tanpa Tumor\Kuadran I dan III: 9 files
+Simulasi Tanpa Tumor\Kuadran I dan IV: 9 files
+Simulasi Tanpa Tumor\Kuadran I,II dan III: 13 files
+Simulasi Tanpa Tumor\Kuadran I,II dan IV: 13 files
+Simulasi Tanpa Tumor\Kuadran I,III dan IV: 13 files
+Simulasi Tanpa Tumor\Kuadran II: 9 files
+Simulasi Tanpa Tumor\Kuadran II dan III: 9 files
+Simulasi Tanpa Tumor\Kuadran II,III dan IV: 13 files
+Simulasi Tanpa Tumor\Kuadran III: 9 files
+Simulasi Tanpa Tumor\Kuadran III dan IV: 9 files
+Simulasi Tanpa Tumor\Simulasi 9 antena: 17 files

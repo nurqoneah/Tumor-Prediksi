@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { parseCsv, validateCsv, createDataHash } from '@/lib/csv-processor';
+import { parseCsv, validateCsv } from '@/lib/csv-processor';
 import * as xlsx from 'xlsx';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as os from 'os';
+import { execSync } from 'child_process';
 
 export async function POST(request: NextRequest) {
   try {
@@ -52,18 +56,52 @@ export async function POST(request: NextRequest) {
 
     const parsed = validation.data!;
 
-    // Compare with all scenarios
-    const scenarios = await db.scenario.findMany();
-    let matchedScenario = null;
+    // Save uploaded content to a temporary file
+    const tempDir = os.tmpdir();
+    const tempFilePath = path.join(
+      tempDir,
+      `upload-${Date.now()}-${Math.random().toString(36).substring(2, 9)}.csv`
+    );
+    fs.writeFileSync(tempFilePath, content, 'utf-8');
 
-    for (const scenario of scenarios) {
-      if (scenario.dataHash === parsed.hash) {
-        matchedScenario = scenario;
-        break;
+    let predictedScenarioName: string | null = null;
+    let confidence = 0;
+
+    try {
+      const scriptPath = path.join(process.cwd(), 'src', 'lib', 'predict.py');
+      const cmd = `python "${scriptPath}" "${tempFilePath}"`;
+      const stdout = execSync(cmd, { encoding: 'utf-8' });
+      const result = JSON.parse(stdout.strip ? stdout.strip() : stdout);
+      
+      if (result.success) {
+        predictedScenarioName = result.prediction;
+        confidence = result.confidence || 0;
+        console.log(`ML prediction class: ${predictedScenarioName} with confidence ${confidence}`);
+      } else {
+        console.error('Inference script returned error:', result.error);
+      }
+    } catch (error) {
+      console.error('Error executing python inference script:', error);
+    } finally {
+      // Clean up temporary file
+      try {
+        if (fs.existsSync(tempFilePath)) {
+          fs.unlinkSync(tempFilePath);
+        }
+      } catch (err) {
+        console.error('Failed to delete temp upload file:', err);
       }
     }
 
-    // Store the uploaded CSV
+    // Match database scenario based on ML prediction
+    let matchedScenario = null;
+    if (predictedScenarioName) {
+      matchedScenario = await db.scenario.findUnique({
+        where: { name: predictedScenarioName }
+      });
+    }
+
+    // Store the uploaded CSV information in database
     const uploaded = await db.uploadedCsv.create({
       data: {
         fileName: file.name,
@@ -93,9 +131,10 @@ export async function POST(request: NextRequest) {
         offsetZ: matchedScenario.offsetZ,
         hasTumor: matchedScenario.hasTumor
       } : null,
+      confidence: confidence,
       message: matchedScenario
-        ? `Skenario: ${matchedScenario.displayName}`
-        : 'File tidak cocok dengan skenario manapun'
+        ? `Skenario Terprediksi: ${matchedScenario.displayName} (Akurasi Model: ${(confidence * 100).toFixed(1)}%)`
+        : 'Model tidak dapat mengklasifikasikan skenario data ini'
     });
   } catch (error) {
     console.error('Error processing file:', error);
@@ -105,3 +144,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+

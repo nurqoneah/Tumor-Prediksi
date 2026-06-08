@@ -1,0 +1,32 @@
+
+> nextjs_tailwind_shadcn_ts@0.2.0 build
+> next build && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/
+
+▲ Next.js 16.2.7 (Turbopack)
+- Environments: .env
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 21.4s
+  Skipping validation of types
+  Finished TypeScript config validation in 42ms ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/6) ...
+  Generating static pages using 7 workers (1/6) 
+  Generating static pages using 7 workers (2/6) 
+  Generating static pages using 7 workers (4/6) 
+✓ Generating static pages using 7 workers (6/6) in 2.4s
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api
+├ ƒ /api/scenarios
+└ ƒ /api/upload-csv
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+'cp' is not recognized as an internal or external command,
+operable program or batch file.

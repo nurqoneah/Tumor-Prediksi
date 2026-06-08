@@ -1,0 +1,79 @@
+83.107:3000
+Γ£ô Ready in 1634ms
+
+ML prediction class: kuadran_I with confidence 1
+node.exe : Error 
+processing file: Error [Pr
+ismaClientInitializationEr
+ror]: 
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo        
+      : NotSpecified: (E  
+  rror processin...izat   
+ ionError]: :String) [    
+], RemoteException
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+Invalid `__TURBOPACK__impo
+rted__module__$5b$project$
+5d2f$src$2f$lib$2f$db$2e$t
+s__$5b$app$2d$route$5d$__$
+28$ecmascript$29$__["db"].
+scenario.findUnique()` 
+invocation in
+D:\Penelitian\Tumor\.next\
+dev\server\chunks\[root-of
+-the-server]__1u-4sb0._.js
+:290:167
+
+  287 // Match database 
+scenario based on ML 
+prediction
+  288 let matchedScenario 
+= null;
+  289 if 
+(predictedScenarioName) {
+ΓåÆ 290     
+matchedScenario = await __
+TURBOPACK__imported__modul
+e__$5b$project$5d2f$src$2f
+$lib$2f$db$2e$ts__$5b$app$
+2d$route$5d$__$28$ecmascri
+pt$29$__["db"].scenario.fi
+ndUnique(
+error: Environment 
+variable not found: 
+DATABASE_URL.
+  -->  schema.prisma:10
+   | 
+ 9 |   provider = "sqlite"
+10 |   url      = 
+env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (src\app\
+api\upload-csv\route.ts:99
+:43)
+    at <unknown> (-->  
+schema.prisma:10)
+    at async POST (src\app
+\api\upload-csv\route.ts:9
+9:25)
+   97 |     let 
+matchedScenario = null;
+   98 |     if 
+(predictedScenarioName) {
+>  99 |       
+matchedScenario = await 
+db.scenario.findUnique({
+      |   

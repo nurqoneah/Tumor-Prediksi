@@ -1,0 +1,35 @@
+=== Summary of Dataset directories ===
+
+--- Hasil Simulasi ---
+  Kuadran I, Tumor di Kuadran I: 9 files
+  Kuadran I, Tumor di tengah: 9 files
+  Kuadran II, Tumor di Kuadran II: 9 files
+  Kuadran II, Tumor di tengah: 9 files
+  Kuadran III, Tumor di Kuadran III: 9 files
+  Kuadran III, Tumor di Tengah: 9 files
+  Kuadran IV, Tumor di Kuadran IV: 9 files
+  Kuadran IV,Tumor di tengah: 9 files
+  Simulasi 9 antena, Tumor di tengah: 17 files
+  Simulasi Kuadran I dan II, 2 Tumor: 9 files
+  Simulasi Kuadran I dan III, 2 Tumor: 9 files
+  Simulasi Kuadran I dan IV, 2 Tumor: 9 files
+  Simulasi Kuadran II dan III, 2 tumor: 9 files
+  Simulasi Kuadran II dan IV, 2 tumor: 9 files
+  Simulasi Kuadran III dan IV, 2 Tumor: 9 files
+
+--- Simulasi Tanpa Tumor ---
+  Kuadaran II dan IV: 9 files
+  Kuadaran IV: 9 files
+  Kuadran I: 9 files
+  Kuadran I dan II: 9 files
+  Kuadran I dan III: 9 files
+  Kuadran I dan IV: 9 files
+  Kuadran I,II dan III: 13 files
+  Kuadran I,II dan IV: 13 files
+  Kuadran I,III dan IV: 13 files
+  Kuadran II: 9 files
+  Kuadran II dan III: 9 files
+  Kuadran II,III dan IV: 13 files
+  Kuadran III: 9 files
+  Kuadran III dan IV: 9 files
+  Simulasi 9 antena: 17 files

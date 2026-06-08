@@ -72,6 +72,22 @@ bun start
 
 Open [http://localhost:3000](http://localhost:3000) to see your application running.
 
+## 🚂 Deployment on Railway
+
+This application utilizes a hybrid stack (**Next.js Node.js Server + Python ML Environment + SQLite Database**). It is configured to run out of the box on Railway using the provided `Dockerfile`.
+
+To deploy on [Railway](https://railway.app/):
+
+1. **Push your code to GitHub** (make sure `Dockerfile` is included in the root).
+2. **Create a New Project** on Railway and select **"Deploy from GitHub repo"**.
+3. **Set Up Persistent SQLite Storage** (Required so uploads and scenarios are not lost on redeploy/rests):
+   - In the Railway project board, click **"New"** -> **"Volume"** (add a Volume of e.g. 1GB, named `app-volume`).
+   - In your service's settings, go to **"Volumes"** and mount the volume at **`/db`**.
+4. **Set Up Environment Variables** (Under **"Variables"** tab in Railway):
+   - Add `DATABASE_URL` with the value `file:/db/custom.db` (this binds Prisma to write inside the persisted volume).
+   - Add `PORT` with `3000` (Railway usually injects this automatically).
+5. **Build and Deploy**: Railway will automatically detect the `Dockerfile`, install the Node environment, compile the Next.js production build, install Python3 with its ML packages (`numpy`, `joblib`, `scikit-learn`), and launch the production server.
+
 ## 🤖 Powered by Z.ai
 
 This scaffold is optimized for use with [Z.ai](https://chat.z.ai) - your AI assistant for:

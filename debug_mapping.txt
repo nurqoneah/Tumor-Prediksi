@@ -1,0 +1,30 @@
+Hasil Simulasi\Kuadran I, Tumor di Kuadran I -> kuadran_I
+Hasil Simulasi\Kuadran I, Tumor di tengah -> dengan_tumor
+Hasil Simulasi\Kuadran II, Tumor di Kuadran II -> kuadran_I
+Hasil Simulasi\Kuadran II, Tumor di tengah -> dengan_tumor
+Hasil Simulasi\Kuadran III, Tumor di Kuadran III -> kuadran_I
+Hasil Simulasi\Kuadran III, Tumor di Tengah -> dengan_tumor
+Hasil Simulasi\Kuadran IV, Tumor di Kuadran IV -> kuadran_I
+Hasil Simulasi\Kuadran IV,Tumor di tengah -> dengan_tumor
+Hasil Simulasi\Simulasi 9 antena, Tumor di tengah -> dengan_tumor
+Hasil Simulasi\Simulasi Kuadran I dan II, 2 Tumor -> dengan_tumor
+Hasil Simulasi\Simulasi Kuadran I dan III, 2 Tumor -> dengan_tumor
+Hasil Simulasi\Simulasi Kuadran I dan IV, 2 Tumor -> dengan_tumor
+Hasil Simulasi\Simulasi Kuadran II dan III, 2 tumor -> dengan_tumor
+Hasil Simulasi\Simulasi Kuadran II dan IV, 2 tumor -> dengan_tumor
+Hasil Simulasi\Simulasi Kuadran III dan IV, 2 Tumor -> dengan_tumor
+Simulasi Tanpa Tumor\Kuadaran II dan IV -> tanpa_tumor
+Simulasi Tanpa Tumor\Kuadaran IV -> tanpa_tumor
+Simulasi Tanpa Tumor\Kuadran I -> tanpa_tumor
+Simulasi Tanpa Tumor\Kuadran I dan II -> tanpa_tumor
+Simulasi Tanpa Tumor\Kuadran I dan III -> tanpa_tumor
+Simulasi Tanpa Tumor\Kuadran I dan IV -> tanpa_tumor
+Simulasi Tanpa Tumor\Kuadran I,II dan III -> tanpa_tumor
+Simulasi Tanpa Tumor\Kuadran I,II dan IV -> tanpa_tumor
+Simulasi Tanpa Tumor\Kuadran I,III dan IV -> tanpa_tumor
+Simulasi Tanpa Tumor\Kuadran II -> tanpa_tumor
+Simulasi Tanpa Tumor\Kuadran II dan III -> tanpa_tumor
+Simulasi Tanpa Tumor\Kuadran II,III dan IV -> tanpa_tumor
+Simulasi Tanpa Tumor\Kuadran III -> tanpa_tumor
+Simulasi Tanpa Tumor\Kuadran III dan IV -> tanpa_tumor
+Simulasi Tanpa Tumor\Simulasi 9 antena -> tanpa_tumor

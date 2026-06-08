@@ -29,24 +29,47 @@ export function parseCsv(content: string): ParsedCsv {
     throw new Error('CSV file must have at least a header and one data row');
   }
 
-  const headers = lines[0].split(',').map(h => h.trim());
+  const firstLine = lines[0].trim();
+  const delimiter = firstLine.includes(';') ? ';' : ',';
+  
+  const idx = firstLine.indexOf(delimiter);
+  if (idx === -1) {
+    throw new Error('CSV delimiter not found in header');
+  }
+
+  const rawHeader1 = firstLine.substring(0, idx).trim().replace(/^"|"$/g, '');
+  const rawHeader2 = firstLine.substring(idx + 1).trim().replace(/^"|"$/g, '');
+
+  const normHeader1 = (rawHeader1.toLowerCase().startsWith('freq') || rawHeader1.toLowerCase() === 'frequency') 
+    ? 'Frequency' 
+    : rawHeader1;
+  const normHeader2 = (rawHeader2.toLowerCase().startsWith('db') || rawHeader2.toLowerCase().startsWith('"db')) 
+    ? 'dB' 
+    : rawHeader2;
+
+  const normalizedHeaders = [normHeader1, normHeader2];
   const rows: CsvRow[] = [];
 
   for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split(',').map(v => v.trim());
-    if (values.length !== headers.length) continue;
+    const line = lines[i].trim();
+    if (!line) continue;
 
-    const row: CsvRow = {} as CsvRow;
-    headers.forEach((header, index) => {
-      const value = values[index];
-      // Try to parse as number
-      const numValue = parseFloat(value);
-      if (!isNaN(numValue)) {
-        (row as Record<string, number | string>)[header] = numValue;
-      } else {
-        (row as Record<string, number | string>)[header] = value;
-      }
-    });
+    const lineIdx = line.indexOf(delimiter);
+    if (lineIdx === -1) continue;
+
+    const val1 = line.substring(0, lineIdx).trim().replace(/^"|"$/g, '');
+    const val2 = line.substring(lineIdx + 1).trim().replace(/^"|"$/g, '');
+
+    const numVal1 = parseFloat(val1);
+    const numVal2 = parseFloat(val2);
+
+    if (isNaN(numVal1) || isNaN(numVal2)) continue;
+
+    const row: CsvRow = {
+      Frequency: numVal1,
+      dB: numVal2
+    } as CsvRow;
+
     rows.push(row);
   }
 
@@ -55,7 +78,7 @@ export function parseCsv(content: string): ParsedCsv {
 
   return {
     rows,
-    headers,
+    headers: normalizedHeaders,
     rowCount: rows.length,
     hash
   };
