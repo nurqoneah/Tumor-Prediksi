@@ -41,14 +41,14 @@ RUN bun run build
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 ENV NODE_ENV=production
-ENV DATABASE_URL="file:/app/db/custom.db"
+ENV DATABASE_URL="file:///app/db/custom.db"
 
 # Create database directories and ensure they are writable
 RUN mkdir -p /db && chmod -R 777 /db
 RUN mkdir -p /app/db && chmod -R 777 /app/db
 
 # Overwrite .env file in build container to prevent local env loader from overriding our DATABASE_URL
-RUN echo 'DATABASE_URL="file:/app/db/custom.db"' > /app/.env
+RUN echo 'DATABASE_URL="file:///app/db/custom.db"' > /app/.env
 
 # Remove pre-existing sqlite db from build copy to prevent system/user permission lockouts at runtime
 RUN rm -f /app/db/custom.db || true
