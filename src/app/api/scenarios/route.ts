@@ -77,6 +77,66 @@ const SCENARIO_DEFINITIONS = [
     offsetZ: 0.5,
     hasTumor: true,
     fileName: 'simulasi_kuadran_IV.csv'
+  },
+  {
+    name: 'kuadran_I_II',
+    displayName: 'Kuadran I & II',
+    description: 'Tumor di Kuadran I dan II - Area kanan atas (2 tumor)',
+    offsetX: 0.25,
+    offsetY: 0.25,
+    offsetZ: 0.5,
+    hasTumor: true,
+    fileName: 'simulasi_kuadran_I_II.csv'
+  },
+  {
+    name: 'kuadran_I_III',
+    displayName: 'Kuadran I & III',
+    description: 'Tumor di Kuadran I dan III - Area kanan dan kiri (2 tumor)',
+    offsetX: 0,
+    offsetY: 0,
+    offsetZ: 0.5,
+    hasTumor: true,
+    fileName: 'simulasi_kuadran_I_III.csv'
+  },
+  {
+    name: 'kuadran_I_IV',
+    displayName: 'Kuadran I & IV',
+    description: 'Tumor di Kuadran I dan IV - Area kanan bawah (2 tumor)',
+    offsetX: 0.25,
+    offsetY: -0.25,
+    offsetZ: 0.5,
+    hasTumor: true,
+    fileName: 'simulasi_kuadran_I_IV.csv'
+  },
+  {
+    name: 'kuadran_II_III',
+    displayName: 'Kuadran II & III',
+    description: 'Tumor di Kuadran II dan III - Area kiri atas (2 tumor)',
+    offsetX: -0.25,
+    offsetY: 0.25,
+    offsetZ: 0.5,
+    hasTumor: true,
+    fileName: 'simulasi_kuadran_II_III.csv'
+  },
+  {
+     name: 'kuadran_II_IV',
+     displayName: 'Kuadran II & IV',
+     description: 'Tumor di Kuadran II dan IV - Area atas dan bawah (2 tumor)',
+     offsetX: 0,
+     offsetY: 0,
+     offsetZ: 0.5,
+     hasTumor: true,
+     fileName: 'simulasi_kuadran_II_IV.csv'
+  },
+  {
+     name: 'kuadran_III_IV',
+     displayName: 'Kuadran III & IV',
+     description: 'Tumor di Kuadran III dan IV - Area kiri bawah (2 tumor)',
+     offsetX: -0.25,
+     offsetY: -0.25,
+     offsetZ: 0.5,
+     hasTumor: true,
+     fileName: 'simulasi_kuadran_III_IV.csv'
   }
 ];
 

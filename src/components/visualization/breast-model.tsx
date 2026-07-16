@@ -77,10 +77,11 @@ export function BreastModel({ position, side }: BreastModelProps) {
   );
 }
 
-export function TumorMarker({ position, visible, scenarioName }: { 
+export function TumorMarker({ position, visible, scenarioName, color: customColor }: { 
   position: [number, number, number]; 
   visible: boolean;
   scenarioName?: string;
+  color?: string;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
   
@@ -92,11 +93,17 @@ export function TumorMarker({ position, visible, scenarioName }: {
   
   if (!visible) return null;
   
-  const color = {
+  const color = customColor || {
     'kuadran_I': '#ff6b6b',
     'kuadran_II': '#ffd93d', 
     'kuadran_III': '#6bcb77',
-    'kuadran_IV': '#4d96ff'
+    'kuadran_IV': '#4d96ff',
+    'kuadran_I_II': '#ff7b00',
+    'kuadran_I_III': '#a020f0',
+    'kuadran_I_IV': '#e066ff',
+    'kuadran_II_III': '#33ff77',
+    'kuadran_II_IV': '#00ffff',
+    'kuadran_III_IV': '#0080ff'
   }[scenarioName || ''] || '#ff3344';
   
   return (

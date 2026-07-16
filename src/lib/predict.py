@@ -4,7 +4,12 @@ import json
 import numpy as np
 import joblib
 
-CLASSES = ['tanpa_tumor', 'dengan_tumor', 'kuadran_I', 'kuadran_II', 'kuadran_III', 'kuadran_IV']
+CLASSES = [
+    'tanpa_tumor', 'dengan_tumor', 
+    'kuadran_I', 'kuadran_II', 'kuadran_III', 'kuadran_IV',
+    'kuadran_I_II', 'kuadran_I_III', 'kuadran_I_IV', 
+    'kuadran_II_III', 'kuadran_II_IV', 'kuadran_III_IV'
+]
 TARGET_FREQS = np.linspace(1.5, 4.4, 30)
 
 def parse_csv_file(filepath):

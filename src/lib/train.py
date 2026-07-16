@@ -1,5 +1,6 @@
 import os
 import csv
+import re
 import numpy as np
 import joblib
 from sklearn.ensemble import RandomForestClassifier
@@ -7,7 +8,12 @@ from sklearn.ensemble import RandomForestClassifier
 # Standard target frequencies (30 points from 1.5 to 4.4 GHz)
 TARGET_FREQS = np.linspace(1.5, 4.4, 30)
 
-CLASSES = ['tanpa_tumor', 'dengan_tumor', 'kuadran_I', 'kuadran_II', 'kuadran_III', 'kuadran_IV']
+CLASSES = [
+    'tanpa_tumor', 'dengan_tumor', 
+    'kuadran_I', 'kuadran_II', 'kuadran_III', 'kuadran_IV',
+    'kuadran_I_II', 'kuadran_I_III', 'kuadran_I_IV', 
+    'kuadran_II_III', 'kuadran_II_IV', 'kuadran_III_IV'
+]
 CLASS_TO_IDX = {name: idx for idx, name in enumerate(CLASSES)}
 
 def parse_csv_file(filepath):
@@ -54,49 +60,51 @@ def parse_csv_file(filepath):
     return np.array(freqs), np.array(dbs)
 
 def label_from_path(root, filename):
-    # Combine root and filename to check labels
-    path_lower = os.path.join(root, filename).replace('\\', '/').lower()
+    # Combine root and filename and lowercase it
+    path_norm = os.path.join(root, filename).replace('\\', '/').lower()
     
-    # Check if 'tanpa'/'baseline' is in the path or filename
-    if 'tanpa' in path_lower or 'tanpa_tumor' in path_lower:
+    # 1. Baseline / Tanpa Tumor check
+    if 'tanpa' in path_norm:
         return 'tanpa_tumor'
         
-    # Check if 'tumor di tengah' or 'dengan tumor' is in path/filename
-    if 'tumor di tengah' in path_lower or 'dengan_tumor' in path_lower or 'dengan tumor' in path_lower:
+    # 2. 2 Tumor (Double Quadrant) check
+    if '2 tumor' in path_norm or '2_tumor' in path_norm or '2tumor' in path_norm:
+        # Tokenize by alphanumeric words to avoid any substring/prefix matching errors
+        words = re.findall(r'[a-zA-Z0-9]+', path_norm)
+        has_i = 'i' in words
+        has_ii = 'ii' in words
+        has_iii = 'iii' in words
+        has_iv = 'iv' in words
+        
+        if has_i and has_ii:
+            return 'kuadran_I_II'
+        elif has_i and has_iii:
+            return 'kuadran_I_III'
+        elif has_i and has_iv:
+            return 'kuadran_I_IV'
+        elif has_ii and has_iii:
+            return 'kuadran_II_III'
+        elif has_ii and has_iv:
+            return 'kuadran_II_IV'
+        elif has_iii and has_iv:
+            return 'kuadran_III_IV'
+            
+    # 3. Tumor di tengah / Dengan Tumor check
+    if 'tumor di tengah' in path_norm or 'dengan_tumor' in path_norm or 'dengan tumor' in path_norm:
         return 'dengan_tumor'
-    
-    # Check for specific quadrants in reverse order (IV, III, II, I) to avoid substring matches
-    if 'kuadran iv' in path_lower or 'kuadran_iv' in path_lower or 'kuadaran iv' in path_lower:
-        if 'tumor di kuadran iv' in path_lower or 'kuadran_iv.csv' in path_lower or 'kuadran  iv.csv' in path_lower:
+        
+    # 4. Single Quadrant check
+    # Tokenize words to match distinct Roman numerals cleanly
+    words = re.findall(r'[a-zA-Z0-9]+', path_norm)
+    if 'kuadran' in words or 'kuadaran' in words:
+        if 'iv' in words:
             return 'kuadran_IV'
-        elif '2 tumor' in path_lower:
-            return 'dengan_tumor'
-        else:
-            return 'tanpa_tumor'
-
-    if 'kuadran iii' in path_lower or 'kuadran_iii' in path_lower:
-        if 'tumor di kuadran iii' in path_lower or 'kuadran_iii.csv' in path_lower:
+        elif 'iii' in words:
             return 'kuadran_III'
-        elif '2 tumor' in path_lower:
-            return 'dengan_tumor'
-        else:
-            return 'tanpa_tumor'
-
-    if 'kuadran ii' in path_lower or 'kuadran_ii' in path_lower or 'kuadaran ii' in path_lower:
-        if 'tumor di kuadran ii' in path_lower or 'kuadran_ii.csv' in path_lower:
+        elif 'ii' in words:
             return 'kuadran_II'
-        elif '2 tumor' in path_lower:
-            return 'dengan_tumor'
-        else:
-            return 'tanpa_tumor'
-
-    if 'kuadran i' in path_lower or 'kuadran_i' in path_lower:
-        if 'tumor di kuadran i' in path_lower or 'kuadran_i.csv' in path_lower:
+        elif 'i' in words:
             return 'kuadran_I'
-        elif '2 tumor' in path_lower:
-            return 'dengan_tumor'
-        else:
-            return 'tanpa_tumor'
             
     return 'tanpa_tumor'
 

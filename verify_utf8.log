@@ -1,0 +1,14 @@
+Loaded model. Running verification on upload/*.csv files...
+File: Simulasi Kuadran III.csv            | Expected: tanpa_tumor  | Predicted: tanpa_tumor  | Conf:  94.8% | PASSED
+File: simulasi 9 antena dengan tumor csv.csv | Expected: dengan_tumor | Predicted: dengan_tumor | Conf: 100.0% | PASSED
+File: simulasi 9 antena tanpa tumor csv.csv | Expected: tanpa_tumor  | Predicted: tanpa_tumor  | Conf: 100.0% | PASSED
+File: simulasi kuadran I.csv              | Expected: tanpa_tumor  | Predicted: tanpa_tumor  | Conf: 100.0% | PASSED
+File: simulasi kuadran II.csv             | Expected: tanpa_tumor  | Predicted: tanpa_tumor  | Conf:  94.7% | PASSED
+File: simulasi_9_antena_dengan_tumor.csv  | Expected: dengan_tumor | Predicted: dengan_tumor | Conf: 100.0% | PASSED
+File: simulasi_9_antena_tanpa_tumor.csv   | Expected: tanpa_tumor  | Predicted: tanpa_tumor  | Conf: 100.0% | PASSED
+File: simulasi_kuadran_I.csv              | Expected: kuadran_I    | Predicted: kuadran_I    | Conf: 100.0% | PASSED
+File: simulasi_kuadran_II.csv             | Expected: kuadran_II   | Predicted: kuadran_II   | Conf: 100.0% | PASSED
+File: simulasi_kuadran_III.csv            | Expected: kuadran_III  | Predicted: kuadran_III  | Conf: 100.0% | PASSED
+File: simulasi_kuadran_IV.csv             | Expected: kuadran_IV   | Predicted: kuadran_IV   | Conf: 100.0% | PASSED
+
+Verification accuracy: 11/11 (100.00%)

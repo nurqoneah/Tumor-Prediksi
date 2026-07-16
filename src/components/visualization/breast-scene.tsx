@@ -24,23 +24,80 @@ const QUADRANT_POSITIONS: Record<string, [number, number, number]> = {
   'kuadran_II': [0, 0.35, 0.5],    // Atas
   'kuadran_III': [-0.35, 0, 0.5],  // Kiri
   'kuadran_IV': [0, -0.35, 0.5],   // Bawah
-  'dengan_tumor': [0, 0, 0.67]     // Center (Moved from 0.55 to 0.67 for outer visibility)
+  'dengan_tumor': [0, 0, 0.67],    // Center (Moved from 0.55 to 0.67 for outer visibility)
+  'kuadran_I_II': [0.25, 0.25, 0.62],    // Kanan Atas
+  'kuadran_I_III': [0, 0, 0.62],         // Kanan & Kiri (tengah/seimbang)
+  'kuadran_I_IV': [0.25, -0.25, 0.62],   // Kanan Bawah
+  'kuadran_II_III': [-0.25, 0.25, 0.62],  // Kiri Atas
+  'kuadran_II_IV': [0, 0, 0.62],         // Atas & Bawah (tengah/seimbang)
+  'kuadran_III_IV': [-0.25, -0.25, 0.62] // Kiri Bawah
 };
 
 export default function BreastScene({ breastMode, showTumor, tumorPosition, scenarioName }: BreastSceneProps) {
   const showLeft = breastMode === 'left' || breastMode === 'both';
   const showRight = breastMode === 'right' || breastMode === 'both';
 
-  const getTumorPos = (breastPos: [number, number, number]): [number, number, number] => {
-    if (scenarioName && QUADRANT_POSITIONS[scenarioName]) {
-      const [qx, qy, qz] = QUADRANT_POSITIONS[scenarioName];
-      return [breastPos[0] + qx, breastPos[1] + qy, qz];
+  const getTumorPosList = (breastPos: [number, number, number]): { position: [number, number, number]; color?: string }[] => {
+    if (!scenarioName) {
+      return [{
+        position: [
+          breastPos[0] + tumorPosition[0] * 0.35,
+          breastPos[1] + tumorPosition[1] * 0.35,
+          0.5 + tumorPosition[2] * 0.15
+        ]
+      }];
     }
-    return [
-      breastPos[0] + tumorPosition[0] * 0.35,
-      breastPos[1] + tumorPosition[1] * 0.35,
-      0.5 + tumorPosition[2] * 0.15
-    ];
+
+    // Hardcode double-tumor scenarios to map exact multi-quadrant coordinates and colors
+    if (scenarioName === 'kuadran_I_II') {
+      return [
+        { position: [breastPos[0] + 0.35, breastPos[1], 0.5], color: '#ff6b6b' }, // Kuadran I - Red
+        { position: [breastPos[0], breastPos[1] + 0.35, 0.5], color: '#ffd93d' } // Kuadran II - Yellow
+      ];
+    }
+    if (scenarioName === 'kuadran_I_III') {
+      return [
+        { position: [breastPos[0] + 0.35, breastPos[1], 0.5], color: '#ff6b6b' }, // Kuadran I - Red
+        { position: [breastPos[0] - 0.35, breastPos[1], 0.5], color: '#6bcb77' } // Kuadran III - Green
+      ];
+    }
+    if (scenarioName === 'kuadran_I_IV') {
+      return [
+        { position: [breastPos[0] + 0.35, breastPos[1], 0.5], color: '#ff6b6b' }, // Kuadran I - Red
+        { position: [breastPos[0], breastPos[1] - 0.35, 0.5], color: '#4d96ff' } // Kuadran IV - Blue
+      ];
+    }
+    if (scenarioName === 'kuadran_II_III') {
+      return [
+        { position: [breastPos[0], breastPos[1] + 0.35, 0.5], color: '#ffd93d' }, // Kuadran II - Yellow
+        { position: [breastPos[0] - 0.35, breastPos[1], 0.5], color: '#6bcb77' } // Kuadran III - Green
+      ];
+    }
+    if (scenarioName === 'kuadran_II_IV') {
+      return [
+        { position: [breastPos[0], breastPos[1] + 0.35, 0.5], color: '#ffd93d' }, // Kuadran II - Yellow
+        { position: [breastPos[0], breastPos[1] - 0.35, 0.5], color: '#4d96ff' } // Kuadran IV - Blue
+      ];
+    }
+    if (scenarioName === 'kuadran_III_IV') {
+      return [
+        { position: [breastPos[0] - 0.35, breastPos[1], 0.5], color: '#6bcb77' }, // Kuadran III - Green
+        { position: [breastPos[0], breastPos[1] - 0.35, 0.5], color: '#4d96ff' } // Kuadran IV - Blue
+      ];
+    }
+
+    if (QUADRANT_POSITIONS[scenarioName]) {
+      const [qx, qy, qz] = QUADRANT_POSITIONS[scenarioName];
+      return [{ position: [breastPos[0] + qx, breastPos[1] + qy, qz] }];
+    }
+
+    return [{
+      position: [
+        breastPos[0] + tumorPosition[0] * 0.35,
+        breastPos[1] + tumorPosition[1] * 0.35,
+        0.5 + tumorPosition[2] * 0.15
+      ]
+    }];
   };
 
   return (
@@ -76,13 +133,17 @@ export default function BreastScene({ breastMode, showTumor, tumorPosition, scen
           {showLeft && (
             <>
               <BreastModel position={LEFT_POS} side="left" />
-              <TumorMarker position={getTumorPos(LEFT_POS)} visible={showTumor} scenarioName={scenarioName} />
+              {getTumorPosList(LEFT_POS).map((t, idx) => (
+                <TumorMarker key={`left-t-${idx}`} position={t.position} visible={showTumor} scenarioName={scenarioName} color={t.color} />
+              ))}
             </>
           )}
           {showRight && (
             <>
               <BreastModel position={RIGHT_POS} side="right" />
-              <TumorMarker position={getTumorPos(RIGHT_POS)} visible={showTumor} scenarioName={scenarioName} />
+              {getTumorPosList(RIGHT_POS).map((t, idx) => (
+                <TumorMarker key={`right-t-${idx}`} position={t.position} visible={showTumor} scenarioName={scenarioName} color={t.color} />
+              ))}
             </>
           )}
         </Suspense>

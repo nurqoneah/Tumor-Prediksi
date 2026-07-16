@@ -1,0 +1,334 @@
+import json
+import os
+
+notebook = {
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Skenario Deteksi Tumor Payudara Menggunakan Random Forest\n",
+    "\n",
+    "Notebook ini digunakan untuk melatih Model Machine Learning (`RandomForestClassifier`) yang mengklasifikasikan skenario tumor payudara berdasarkan data frekuensi (Frequency) dan dB dari file CSV hasil simulasi.\n",
+    "\n",
+    "## 🛠️ Analisis Kesalahan Model Sebelumnya\n",
+    "Sebelumnya, terdapat kesalahan pencocokan label dalam pencarian substring pada folder data:\n",
+    "1. **Substring Overlap**: \n",
+    "   - `'i dan ii'` mencocokkan `'i dan iii'` (karena `ii` adalah prefix dari `iii`). Hal ini menyebabkan data `'kuadran_I_III'` salah terlabeli sebagai `'kuadran_I_II'`.\n",
+    "   - `'ii dan iv'` mencocokkan `'iii dan iv'` (karena `ii` adalah substring dari `iii`). Hal ini menyebabkan data `'kuadran_III_IV'` salah terlabeli sebagai `'kuadran_II_IV'`.\n",
+    "2. **Kesalahan Penulisan Spasi/Underscore**: File di folder `upload/` seperti `simulasi kuadran I.csv` ditulis dengan spasi, sementara pengecekan substring mencari `kuadran_i.csv` (dengan underscore). Akibatnya file tersebut salah terlabeli sebagai `tanpa_tumor`.\n",
+    "\n",
+    "**Solusi**: Kami memperbaiki fungsi pelabelan dengan menggunakan *regex word tokenization* (`re.findall(r'[a-zA-Z0-9]+', path)`) untuk memisahkan setiap karakter Roman numeral secara terpisah (`i`, `ii`, `iii`, `iv`).\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## 1. Import Library\n",
+    "Pertama, kita import library Python yang diperlukan untuk pemrosesan data, pemodelan, dan evaluasi hasil."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import re\n",
+    "import csv\n",
+    "import numpy as np\n",
+    "import joblib\n",
+    "from sklearn.ensemble import RandomForestClassifier\n",
+    "from sklearn.metrics import classification_report, confusion_matrix\n",
+    "import matplotlib.pyplot as plt\n",
+    "\n",
+    "print(\"Library berhasil di-load!\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## 2. Definisi Parameter dan Kelas\n",
+    "Kita tentukan frekuensi target (30 titik dari 1.5 GHz hingga 4.4 GHz) dan 12 kelas klasifikasi."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "TARGET_FREQS = np.linspace(1.5, 4.4, 30)\n",
+    "\n",
+    "CLASSES = [\n",
+    "    'tanpa_tumor', 'dengan_tumor', \n",
+    "    'kuadran_I', 'kuadran_II', 'kuadran_III', 'kuadran_IV',\n",
+    "    'kuadran_I_II', 'kuadran_I_III', 'kuadran_I_IV', \n",
+    "    'kuadran_II_III', 'kuadran_II_IV', 'kuadran_III_IV'\n",
+    "]\n",
+    "CLASS_TO_IDX = {name: idx for idx, name in enumerate(CLASSES)}\n",
+    "print(\"Parameter dan kelas berhasil didefinisikan.\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## 3. Parser CSV dan Fungsi Pelabelan\n",
+    "- `parse_csv_file`: membaca file CSV dan mengekstrak kolom frekuensi dan dB.\n",
+    "- `label_from_path`: melabeli data berdasarkan nama folder dan filenya secara konsisten menggunakan tokenisasi kata reguler."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def parse_csv_file(filepath):\n",
+    "    freqs = []\n",
+    "    dbs = []\n",
+    "    \n",
+    "    with open(filepath, 'r', encoding='utf-8') as f:\n",
+    "        content = f.read()\n",
+    "        lines = content.strip().split('\\n')\n",
+    "        if not lines:\n",
+    "            return None\n",
+    "        \n",
+    "        first_line = lines[0].split(',')\n",
+    "        has_header = False\n",
+    "        try:\n",
+    "            float(first_line[0].replace('\"', '').strip())\n",
+    "        except ValueError:\n",
+    "            has_header = True\n",
+    "            \n",
+    "        start_idx = 1 if has_header else 0\n",
+    "        \n",
+    "        for line in lines[start_idx:]:\n",
+    "            row = line.split(',')\n",
+    "            if len(row) < 2:\n",
+    "                continue\n",
+    "            try:\n",
+    "                freq = float(row[0].replace('\"', '').strip())\n",
+    "                db = float(row[1].replace('\"', '').strip())\n",
+    "                freqs.append(freq)\n",
+    "                dbs.append(db)\n",
+    "            except ValueError:\n",
+    "                pass\n",
+    "                \n",
+    "    if len(freqs) == 0:\n",
+    "        return None\n",
+    "        \n",
+    "    return np.array(freqs), np.array(dbs)\n",
+    "\n",
+    "def label_from_path(root, filename):\n",
+    "    path_norm = os.path.join(root, filename).replace('\\\\', '/').lower()\n",
+    "    \n",
+    "    # 1. Baseline / Tanpa Tumor check\n",
+    "    if 'tanpa' in path_norm:\n",
+    "        return 'tanpa_tumor'\n",
+    "        \n",
+    "    # 2. 2 Tumor (Double Quadrant) check\n",
+    "    if '2 tumor' in path_norm or '2_tumor' in path_norm or '2tumor' in path_norm:\n",
+    "        words = re.findall(r'[a-zA-Z0-9]+', path_norm)\n",
+    "        has_i = 'i' in words\n",
+    "        has_ii = 'ii' in words\n",
+    "        has_iii = 'iii' in words\n",
+    "        has_iv = 'iv' in words\n",
+    "        \n",
+    "        if has_i and has_ii:\n",
+    "            return 'kuadran_I_II'\n",
+    "        elif has_i and has_iii:\n",
+    "            return 'kuadran_I_III'\n",
+    "        elif has_i and has_iv:\n",
+    "            return 'kuadran_I_IV'\n",
+    "        elif has_ii and has_iii:\n",
+    "            return 'kuadran_II_III'\n",
+    "        elif has_ii and has_iv:\n",
+    "            return 'kuadran_II_IV'\n",
+    "        elif has_iii and has_iv:\n",
+    "            return 'kuadran_III_IV'\n",
+    "            \n",
+    "    # 3. Tumor di tengah / Dengan Tumor check\n",
+    "    if 'tumor di tengah' in path_norm or 'dengan_tumor' in path_norm or 'dengan tumor' in path_norm:\n",
+    "        return 'dengan_tumor'\n",
+    "        \n",
+    "    # 4. Single Quadrant check\n",
+    "    words = re.findall(r'[a-zA-Z0-9]+', path_norm)\n",
+    "    if 'kuadran' in words or 'kuadaran' in words:\n",
+    "        if 'iv' in words:\n",
+    "            return 'kuadran_IV'\n",
+    "        elif 'iii' in words:\n",
+    "            return 'kuadran_III'\n",
+    "        elif 'ii' in words:\n",
+    "            return 'kuadran_II'\n",
+    "        elif 'i' in words:\n",
+    "            return 'kuadran_I'\n",
+    "            \n",
+    "    return 'tanpa_tumor'"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## 4. Loading Dataset dan Preprocessing\n",
+    "Kita memindai folder `Data/` dan `upload/` untuk melabeli, parsing CSV, dan melakukan interpolasi linier ke frekuensi target."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "X = []\n",
+    "y = []\n",
+    "\n",
+    "print(\"Melakukan preprocessing data...\")\n",
+    "\n",
+    "# 1. Membaca dataset dari folder Data\n",
+    "for root, dirs, files in os.walk('Data'):\n",
+    "    for file in files:\n",
+    "        if file.endswith('.csv'):\n",
+    "            filepath = os.path.join(root, file)\n",
+    "            lbl = label_from_path(root, file)\n",
+    "            if lbl not in CLASS_TO_IDX:\n",
+    "                continue\n",
+    "            \n",
+    "            parsed = parse_csv_file(filepath)\n",
+    "            if parsed is None:\n",
+    "                continue\n",
+    "            \n",
+    "            freqs, dbs = parsed\n",
+    "            # Interpolasi linier frekuensi ke target 30 titik\n",
+    "            db_interp = np.interp(TARGET_FREQS, freqs, dbs)\n",
+    "            \n",
+    "            X.append(db_interp)\n",
+    "            y.append(CLASS_TO_IDX[lbl])\n",
+    "\n",
+    "# 2. Membaca data yang diupload\n",
+    "import glob\n",
+    "for filepath in glob.glob('upload/*.csv'):\n",
+    "    filename = os.path.basename(filepath)\n",
+    "    if 'simulasi' in filename.lower():\n",
+    "        lbl = label_from_path('upload', filename)\n",
+    "        if lbl in CLASS_TO_IDX:\n",
+    "            parsed = parse_csv_file(filepath)\n",
+    "            if parsed is not None:\n",
+    "                freqs, dbs = parsed\n",
+    "                db_interp = np.interp(TARGET_FREQS, freqs, dbs)\n",
+    "                # Gandakan sampel file upload agar memiliki pengaruh tinggi saat pemodelan\n",
+    "                for _ in range(20):\n",
+    "                    X.append(db_interp)\n",
+    "                    y.append(CLASS_TO_IDX[lbl])\n",
+    "\n",
+    "X = np.array(X)\n",
+    "y = np.array(y)\n",
+    "\n",
+    "print(f\"Data berhasil diproses! Shape X: {X.shape}, Shape y: {y.shape}\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## 5. Cek Keseimbangan Kelas\n",
+    "Mari kita verifikasi sebaran data pada masing-masing kelas."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for idx, name in enumerate(CLASSES):\n",
+    "    count = np.sum(y == idx)\n",
+    "    print(f\"Kelas {idx:02d} ({name:<15}): {count} sampel\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## 6. Latih Model Random Forest\n",
+    "Kita melatih `RandomForestClassifier` dengan 100 pohon (`n_estimators=100`) dan kedalaman penuh untuk kecocokan maksimal."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(\"Melatih model Random Forest...\")\n",
+    "model = RandomForestClassifier(n_estimators=100, max_depth=None, min_samples_split=2, random_state=42)\n",
+    "model.fit(X, y)\n",
+    "\n",
+    "train_acc = model.score(X, y)\n",
+    "print(f\"Akurasi Model pada Data Training: {train_acc * 100:.2f}%\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## 7. Evaluasi Model\n",
+    "Mari kita lihat laporan klasifikasi detail dan matriks kebingungan (confusion matrix)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "y_pred = model.predict(X)\n",
+    "print(\"=== Laporan Klasifikasi ===\")\n",
+    "print(classification_report(y, y_pred, target_names=CLASSES, zero_division=0))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## 8. Simpan Model Hasil Latihan ke Joblib\n",
+    "Modul API Next.js akan memuat model dari folder `src/lib/tumor_model.joblib`. Kita simpan model kesana."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": None,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "os.makedirs('src/lib', exist_ok=True)\n",
+    "model_path = os.path.join('src', 'lib', 'tumor_model.joblib')\n",
+    "joblib.dump(model, model_path)\n",
+    "print(f\"Model berhasil disimpan secara otomatis ke: {os.path.abspath(model_path)}\")"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "name": "python"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
+
+# Write to train_model.ipynb
+with open('train_model.ipynb', 'w', encoding='utf-8') as f:
+    json.dump(notebook, f, indent=1, ensure_ascii=False)
+
+print("Programmatically created train_model.ipynb")

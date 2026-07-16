@@ -3,7 +3,12 @@ import glob
 import numpy as np
 import joblib
 
-CLASSES = ['tanpa_tumor', 'dengan_tumor', 'kuadran_I', 'kuadran_II', 'kuadran_III', 'kuadran_IV']
+CLASSES = [
+    'tanpa_tumor', 'dengan_tumor', 
+    'kuadran_I', 'kuadran_II', 'kuadran_III', 'kuadran_IV',
+    'kuadran_I_II', 'kuadran_I_III', 'kuadran_I_IV', 
+    'kuadran_II_III', 'kuadran_II_IV', 'kuadran_III_IV'
+]
 TARGET_FREQS = np.linspace(1.5, 4.4, 30)
 
 def parse_csv_file(filepath):
@@ -51,40 +56,47 @@ def label_from_path(root, filename):
     if 'tanpa' in path_lower or 'tanpa_tumor' in path_lower:
         return 'tanpa_tumor'
         
+    # Check specifically for 2 tumor combinations first to avoid falling into individual quadrant checks
+    if '2 tumor' in path_lower or '2_tumor' in path_lower or '2tumor' in path_lower:
+        if 'i dan ii' in path_lower or 'i_ii' in path_lower:
+            return 'kuadran_I_II'
+        elif 'i dan iii' in path_lower or 'i_iii' in path_lower:
+            return 'kuadran_I_III'
+        elif 'i dan iv' in path_lower or 'i_iv' in path_lower:
+            return 'kuadran_I_IV'
+        elif 'ii dan iii' in path_lower or 'ii_iii' in path_lower:
+            return 'kuadran_II_III'
+        elif 'ii dan iv' in path_lower or 'ii_iv' in path_lower:
+            return 'kuadran_II_IV'
+        elif 'iii dan iv' in path_lower or 'iii_iv' in path_lower:
+            return 'kuadran_III_IV'
+        
     # Check if 'tumor di tengah' or 'dengan tumor' is in path/filename
     if 'tumor di tengah' in path_lower or 'dengan_tumor' in path_lower or 'dengan tumor' in path_lower:
         return 'dengan_tumor'
     
     # Check for specific quadrants in reverse order (IV, III, II, I) to avoid substring matches
     if 'kuadran iv' in path_lower or 'kuadran_iv' in path_lower or 'kuadaran iv' in path_lower:
-        if 'tumor di kuadran iv' in path_lower or 'kuadran_iv.csv' in path_lower or 'kuadran  iv.csv' in path_lower:
+        if 'tumor di kuadran iv' in path_lower or 'kuadran_iv.csv' in path_lower or 'kuadran  iv.csv' in path_lower or 'kuadaran iv' in path_lower:
             return 'kuadran_IV'
-        elif '2 tumor' in path_lower:
-            return 'dengan_tumor'
         else:
             return 'tanpa_tumor'
 
     if 'kuadran iii' in path_lower or 'kuadran_iii' in path_lower:
         if 'tumor di kuadran iii' in path_lower or 'kuadran_iii.csv' in path_lower:
             return 'kuadran_III'
-        elif '2 tumor' in path_lower:
-            return 'dengan_tumor'
         else:
             return 'tanpa_tumor'
 
     if 'kuadran ii' in path_lower or 'kuadran_ii' in path_lower or 'kuadaran ii' in path_lower:
         if 'tumor di kuadran ii' in path_lower or 'kuadran_ii.csv' in path_lower:
             return 'kuadran_II'
-        elif '2 tumor' in path_lower:
-            return 'dengan_tumor'
         else:
             return 'tanpa_tumor'
 
     if 'kuadran i' in path_lower or 'kuadran_i' in path_lower:
         if 'tumor di kuadran i' in path_lower or 'kuadran_i.csv' in path_lower:
             return 'kuadran_I'
-        elif '2 tumor' in path_lower:
-            return 'dengan_tumor'
         else:
             return 'tanpa_tumor'
             
