@@ -3,6 +3,10 @@ import os
 import json
 import numpy as np
 import joblib
+import warnings
+
+# Suppress warnings (e.g. UserWarnings from scikit-learn) so stdout only contains JSON
+warnings.filterwarnings('ignore')
 
 CLASSES = [
     'tanpa_tumor', 'dengan_tumor', 

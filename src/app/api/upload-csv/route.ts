@@ -21,18 +21,18 @@ export async function POST(request: NextRequest) {
 
     const fileName = file.name.toLowerCase();
     let content: string;
-    
+
     // Check file type
     if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
       // Handle Excel file
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
       const workbook = xlsx.read(buffer, { type: 'buffer' });
-      
+
       // Get first sheet
       const sheetName = workbook.SheetNames[0];
       const sheet = workbook.Sheets[sheetName];
-      
+
       // Convert to CSV format
       content = xlsx.utils.sheet_to_csv(sheet);
     } else if (fileName.endsWith('.csv')) {
@@ -92,8 +92,15 @@ export async function POST(request: NextRequest) {
 
       const cmd = `${pythonCmd} "${scriptPath}" "${tempFilePath}"`;
       const stdout = execSync(cmd, { encoding: 'utf-8' });
-      const result = JSON.parse(stdout.trim ? stdout.trim() : stdout);
-      
+
+      // Extract ONLY the JSON part to avoid crash if python printed warnings
+      const match = stdout.match(/\{[\s\S]*\}/);
+      if (!match) {
+        throw new Error(`Inference returned non-JSON output: ${stdout}`);
+      }
+
+      const result = JSON.parse(match[0]);
+
       if (result.success) {
         predictedScenarioName = result.prediction;
         confidence = result.confidence || 0;
