@@ -59,6 +59,8 @@ RUN mkdir -p .next/standalone/src/lib/
 RUN cp src/lib/predict.py .next/standalone/src/lib/
 RUN cp src/lib/tumor_model.joblib .next/standalone/src/lib/
 RUN cp -r upload .next/standalone/upload
+RUN cp -r node_modules/.prisma .next/standalone/node_modules/ || true
+RUN cp -r node_modules/@prisma .next/standalone/node_modules/ || true
 
 # Expose port (Railway overrides this dynamically with PORT env)
 EXPOSE 3000

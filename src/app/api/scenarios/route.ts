@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 import { db } from '@/lib/db';
 import { parseCsv, createDataHash } from '@/lib/csv-processor';
 import * as fs from 'fs';
@@ -119,24 +120,24 @@ const SCENARIO_DEFINITIONS = [
     fileName: 'simulasi_kuadran_II_III.csv'
   },
   {
-     name: 'kuadran_II_IV',
-     displayName: 'Kuadran II & IV',
-     description: 'Tumor di Kuadran II dan IV - Area atas dan bawah (2 tumor)',
-     offsetX: 0,
-     offsetY: 0,
-     offsetZ: 0.5,
-     hasTumor: true,
-     fileName: 'simulasi_kuadran_II_IV.csv'
+    name: 'kuadran_II_IV',
+    displayName: 'Kuadran II & IV',
+    description: 'Tumor di Kuadran II dan IV - Area atas dan bawah (2 tumor)',
+    offsetX: 0,
+    offsetY: 0,
+    offsetZ: 0.5,
+    hasTumor: true,
+    fileName: 'simulasi_kuadran_II_IV.csv'
   },
   {
-     name: 'kuadran_III_IV',
-     displayName: 'Kuadran III & IV',
-     description: 'Tumor di Kuadran III dan IV - Area kiri bawah (2 tumor)',
-     offsetX: -0.25,
-     offsetY: -0.25,
-     offsetZ: 0.5,
-     hasTumor: true,
-     fileName: 'simulasi_kuadran_III_IV.csv'
+    name: 'kuadran_III_IV',
+    displayName: 'Kuadran III & IV',
+    description: 'Tumor di Kuadran III dan IV - Area kiri bawah (2 tumor)',
+    offsetX: -0.25,
+    offsetY: -0.25,
+    offsetZ: 0.5,
+    hasTumor: true,
+    fileName: 'simulasi_kuadran_III_IV.csv'
   }
 ];
 

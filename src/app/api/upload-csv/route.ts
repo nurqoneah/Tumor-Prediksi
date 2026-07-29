@@ -68,10 +68,31 @@ export async function POST(request: NextRequest) {
     let confidence = 0;
 
     try {
-      const scriptPath = path.join(process.cwd(), 'src', 'lib', 'predict.py');
-      const cmd = `python "${scriptPath}" "${tempFilePath}"`;
+      // Robust script path lookup (works for dev, local, and standalone next.js production builds)
+      let scriptPath = path.join(process.cwd(), 'src', 'lib', 'predict.py');
+      if (!fs.existsSync(scriptPath)) {
+        const altPath = path.join(process.cwd(), '.next', 'standalone', 'src', 'lib', 'predict.py');
+        if (fs.existsSync(altPath)) {
+          scriptPath = altPath;
+        }
+      }
+
+      // Check which python executable is available
+      let pythonCmd = 'python';
+      try {
+        execSync('python --version', { stdio: 'ignore' });
+      } catch {
+        try {
+          execSync('python3 --version', { stdio: 'ignore' });
+          pythonCmd = 'python3';
+        } catch {
+          console.warn('Neither python nor python3 resolved correctly. Defaulting to python command.');
+        }
+      }
+
+      const cmd = `${pythonCmd} "${scriptPath}" "${tempFilePath}"`;
       const stdout = execSync(cmd, { encoding: 'utf-8' });
-      const result = JSON.parse(stdout.strip ? stdout.strip() : stdout);
+      const result = JSON.parse(stdout.trim ? stdout.trim() : stdout);
       
       if (result.success) {
         predictedScenarioName = result.prediction;
@@ -94,7 +115,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Match database scenario based on ML prediction
-    let matchedScenario = null;
+    let matchedScenario: any = null;
     if (predictedScenarioName) {
       matchedScenario = await db.scenario.findUnique({
         where: { name: predictedScenarioName }
